@@ -1,0 +1,20 @@
+=君英的维基地带=
+%toc
+==我的著作==
+
+====1. Gentoo====
+====2. Joomla====
+
+==学习笔记==
+====1. Git====
+====2. Vim====
+
+==我的日记==
+
+= 我的知识库 =
+    * 我的紧急任务(MyUrgentTasks) -- 昨天应该完成的事！！！
+    * 古腾堡计划(ProjectGutenberg) -- 强大的好书。
+    * 便条簿(ScratchPad) -- 各种临时的东西。
+
+
+%title 欢迎来到君英的维基地带 - a site build with Vim, Vimwiki and Git

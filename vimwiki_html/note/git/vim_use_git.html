@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>在vim中使用git(gentoo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="Stylesheet" type="text/css" href="../../css/style.css" />
+<script>var root_path = '../../';</script> 
+</head>
+<body>
+<div id="all">
+<div id="header">
+	<ul id="top-nav">
+		<li>
+			<a href="../../index.html">首页</a>
+		</li>
+		<li>
+			<a href="../../note/index.html">经验总结</a>
+		</li>
+		<li>
+			<a href="../../diary/diary.html">日记</a>
+		</li>
+	</ul>
+</div>
+<div id="main">
+<div class="toc">
+<ul>
+<li><a href="#toc_1">在vim中使用git(gentoo)</a></li>
+<ul>
+<li><a href="#toc_1.1">eix查找到git插件</a></li>
+<li><a href="#toc_1.2">安装git</a></li>
+<li><a href="#toc_1.3">在状态栏上显示branch信息</a></li>
+<li><a href="#toc_1.4">常用命令</a></li>
+</ul>
+</ul>
+</div>
+<h1 id="toc_1">在vim中使用git(gentoo)</h1>
+<h2 id="toc_1.1">eix查找到git插件</h2>
+<pre   class="brush:bash">
+# eix app-vim/vcscommand
+[I] app-vim/vcscommand
+     Available versions:  (~)1.99.37 (~)1.99.42
+     Installed versions:  1.99.42(10时38分56秒 2011年01月14日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=90
+     Description:         vim plugin: CVS/SVN/SVK/git/bzr/hg integration plugin
+</pre>
+<h2 id="toc_1.2">安装git</h2>
+<pre>
+# emerge -av app-vim/vcscommand    
+</pre>
+<h2 id="toc_1.3">在状态栏上显示branch信息</h2>
+<p>
+修改.vimrc文件，添加一下代码
+</p>
+<pre>
+set laststatus=2
+set statusline=%{GitBranch()}
+</pre>
+<p>
+这里其实就是使用git.vim内置的GitBranch()函数来显示信息，其实也可以在原有statusline上加入此函数，下面是我所是用的statusline
+</p>
+<pre>
+set statusline="%F%m%r%h%w\ [%{&amp;ff}]\ [%Y]\ [%{(&amp;fenc==\"\")?&amp;enc:&amp;fenc}%{(&amp;bomb?\",BOM\":\"\")}]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]\ %=[%{GitBranch()}]"
+ 
+</pre>
+<h2 id="toc_1.4">常用命令</h2>
+<ul>
+<li>
+GitAdd
+</li>
+<li>
+GitCommit
+</li>
+<li>
+GitStatus
+</li>
+<li>
+GitLog
+</li>
+<li>
+GitCheckout
+</li>
+<li>
+GitDiff
+</li>
+<li>
+GitPull
+</li>
+<li>
+GitPush
+</li>
+</ul>
+</div>
+<div id="footer">
+    <p>&copy; 2011 君英 &nbsp;&nbsp; <a href="../../SiteMap.html" title="站点地图">站点地图</a></p>
+</div>
+</div>
+<script src="../../css/jquery.js" type="text/javascript"></script>
+<script src="../../css/vimwiki.js" type="text/javascript"></script>
+</body>
+</html>

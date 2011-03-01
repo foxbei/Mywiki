@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>vim_undofile</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="Stylesheet" type="text/css" href="../../css/style.css" />
+<script>var root_path = '../../';</script> 
+</head>
+<body>
+<div id="all">
+<div id="header">
+	<ul id="top-nav">
+		<li>
+			<a href="../../index.html">首页</a>
+		</li>
+		<li>
+			<a href="../../note/index.html">经验总结</a>
+		</li>
+		<li>
+			<a href="../../diary/diary.html">日记</a>
+		</li>
+	</ul>
+</div>
+<div id="main">
+<h1 id="toc_1">Vim7.3 的持久撤销</h1>
+
+<p>
+Vim 7.3 提供 持久撤销 (Persistent Undo) 功能，即使文件关闭后，再次打开时仍然可以撤销文件关闭之前的编辑历史。要使用这一功能，在.vimrc 中添加以下代码：
+</p>
+<pre>
+" 重启后撤销历史可用 persistent undo 
+set undofile
+set undodir=$VIMFILES/\_undodir
+set undolevels=1000 "maximum number of changes that can be undone
+</pre>
+<p>
+set undofile - 开启本功能。开启之后会默认在文件当前目录下建立一个 filename.ext.un~ 的文件，自然是会给我们带来麻烦的。所以配置一个 undodir 集中放置所有undofile。
+</p>
+
+<p>
+$VIMFILES/\_undodir - $VIMFILES 是我们之前在 vimrc 中定义的环境变量， windows 下是 $VIM/vimfiles/ 。请注意，为了和其他目录区分，undodir前面有下划线 _undodir 。因为有下划线，前面的反斜杠又不可少了。而且这个目录必须自己手动建立。如果不存在，Vim 是不会帮你自动建立的。&lt;F4&gt;
+</p>
+</div>
+<div id="footer">
+    <p>&copy; 2011 君英 &nbsp;&nbsp; <a href="../../SiteMap.html" title="站点地图">站点地图</a></p>
+</div>
+</div>
+<script src="../../css/jquery.js" type="text/javascript"></script>
+<script src="../../css/vimwiki.js" type="text/javascript"></script>
+</body>
+</html>

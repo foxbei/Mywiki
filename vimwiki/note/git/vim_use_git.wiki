@@ -1,0 +1,37 @@
+%toc
+=在vim中使用git(gentoo)=
+==eix查找到git插件==
+{{{  class="brush:bash"
+# eix app-vim/vcscommand
+[I] app-vim/vcscommand
+     Available versions:  (~)1.99.37 (~)1.99.42
+     Installed versions:  1.99.42(10时38分56秒 2011年01月14日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=90
+     Description:         vim plugin: CVS/SVN/SVK/git/bzr/hg integration plugin
+}}}
+==安装git==
+{{{
+# emerge -av app-vim/vcscommand    
+}}}
+==在状态栏上显示branch信息==
+修改.vimrc文件，添加一下代码
+{{{
+set laststatus=2
+set statusline=%{GitBranch()}
+}}}
+这里其实就是使用git.vim内置的GitBranch()函数来显示信息，其实也可以在原有statusline上加入此函数，下面是我所是用的statusline
+{{{
+set statusline="%F%m%r%h%w\ [%{&ff}]\ [%Y]\ [%{(&fenc==\"\")?&enc:&fenc}%{(&bomb?\",BOM\":\"\")}]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]\ %=[%{GitBranch()}]"
+ 
+    }}}
+==常用命令==
+* GitAdd
+* GitCommit
+* GitStatus
+* GitLog
+* GitCheckout
+* GitDiff
+* GitPull
+* GitPush
+
+%title 在vim中使用git(gentoo

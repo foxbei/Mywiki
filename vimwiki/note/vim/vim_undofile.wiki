@@ -1,0 +1,12 @@
+=Vim7.3 的持久撤销=
+
+Vim 7.3 提供 持久撤销 (Persistent Undo) 功能，即使文件关闭后，再次打开时仍然可以撤销文件关闭之前的编辑历史。要使用这一功能，在.vimrc 中添加以下代码：
+{{{
+" 重启后撤销历史可用 persistent undo 
+set undofile
+set undodir=$VIMFILES/\_undodir
+set undolevels=1000 "maximum number of changes that can be undone
+}}}
+set undofile - 开启本功能。开启之后会默认在文件当前目录下建立一个 filename.ext.un~ 的文件，自然是会给我们带来麻烦的。所以配置一个 undodir 集中放置所有undofile。
+
+$VIMFILES/\_undodir - $VIMFILES 是我们之前在 vimrc 中定义的环境变量， windows 下是 $VIM/vimfiles/ 。请注意，为了和其他目录区分，undodir前面有下划线 _undodir 。因为有下划线，前面的反斜杠又不可少了。而且这个目录必须自己手动建立。如果不存在，Vim 是不会帮你自动建立的。<F4>
