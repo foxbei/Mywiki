@@ -66,3 +66,25 @@ Vim强大的编辑能力中很大部分是来自于其普通模式命令。普�
 ====其他====
 ==== Evim ====
 Evim是一个特殊的GUI模式用来尽量的表现的和"无模式"编辑器一样。编辑器自动进入并且停留在插入模式，用户只能通过菜单、鼠标和键盘控制键来对文本进行操作。可以在命令行下输入"evim"或者"vim -y"进入。在Windows下，通常也可以点击桌面上Evim的图标。
+=Gentoo Gnome安装=
+{{{
+emerge gnome-utils gnome-system-tools file-roller gnome-system-monitor pmount
+}}}
+pmount （gnome下自动挂载）以实现你的移动设备(usb)自动挂载。
+{{{
+emerge gnome-media gnome-audio esound alsamixergui gnome-applets
+}}}
+* esound是gnome下的软件混音器。（安装后在gnome的桌面--首选项-->音效里面选择 启用软件混音器，重启。）
+* gnome-utils是一些小工具（如：抓屏 printscreen键）
+* gnome-system-tools是一些管理工具 桌面-->系统管理里面的。
+* file-roller是归档管理器。
+* gnome-system-monitor是任务管理器。
+* gnome-applets声音调节按钮在面板等
+==PDF阅读软件==
+{{{
+emerge app-text/foxitreader
+}}}
+{{{
+$ git config --global user.name foxbei
+$ git config --global user.email foxbei@163.com
+}}}
