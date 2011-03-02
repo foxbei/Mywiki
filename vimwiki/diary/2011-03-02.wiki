@@ -1,0 +1,56 @@
+= Gentoo下Vim插件 =
+* 文件浏览器和 -- 插件: WinManager
+
+* app-vim/bufferexplorer
+     Available versions:  (~)7.2.7 (~)7.2.8
+     Installed versions:  7.2.8(09时44分13秒 2011年02月24日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=42
+     Description:         vim plugin: easily browse vim buffers
+
+* app-vim/calendar
+     Available versions:  2.2
+     Installed versions:  2.2(10时40分55秒 2011年03月01日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=52
+     Description:         vim plugin: calendar window
+
+* app-vim/colorschemes
+     Available versions:  20100218 (~)20101121
+     Homepage:            http://www.vim.org/
+     Description:         vim plugin: a collection of color schemes from vim.org
+
+* app-vim/fuzzyfinder
+     Available versions:  4.2.2
+     Installed versions:  4.2.2(11时00分07秒 2011年03月02日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=1984
+     Description:         vim plugin: buffer/file/command/tag/etc explorer with fuzzy matching
+
+* app-vim/minibufexpl
+     Available versions:  6.3.2
+     Installed versions:  6.3.2(15时44分26秒 2011年01月14日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=159
+     Description:         vim plugin: easily switch between buffers
+
+* app-vim/nerdcommenter
+     Available versions:  (~)2.2.2 (~)2.3.0
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=1218
+     Description:         vim plugin: easy commenting of code for many filetypes.
+
+* app-vim/nerdtree
+     Available versions:  (~)4.1.0
+     Installed versions:  4.1.0(16时20分01秒 2011年02月24日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=1658
+     Description:         vim plugin: A tree explorer plugin for navigating the filesystem
+
+* app-vim/zencoding-vim
+     Available versions:  (~)0.48
+     Installed versions:  0.48(10时48分42秒 2011年03月02日)
+     Homepage:            http://www.vim.org/scripts/script.php?script_id=2981 http://mattn.github.com/zencoding-vim/
+     Description:         vim plugin: HTML and CSS hi-speed coding
+
+* app-vim/omnicppcomplete
+  vim plugin: C/C++ omni-completion with ctags database
+
+== foldmarker ==
+* zv 打开当前行折叠
+* zr 打开所有折叠
+* zm 关闭所有折叠
