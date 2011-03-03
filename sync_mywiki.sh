@@ -1,11 +1,9 @@
-echo "同步到我的维客到github.. "
-echo "begin exec 'git add .'"
+echo "Github sync begin .. "
+echo "Begin exec: git add ."
 git add . 
-echo "finished 'git add .'"
-echo "begin exec git commit -a -m '%message'"
+echo "Begin exec: git commit -a -m '%message'"
 git commit -a -m "wiki update"
-echo "begin git commit -a -m 'message'"
-
+echo "Begin exec: git push "
+echo "Pleash waiting ......"
 git push
-echo "开始推送到kwiki"
-exit
+echo "Github sync finished, exit."
