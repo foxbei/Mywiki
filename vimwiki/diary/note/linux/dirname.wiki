@@ -1,0 +1,47 @@
+= 获得当前目录名称的 4 种方法 =
+
+在写 shell 脚本的时候，有时我们需要得到当前目录的名称，pwd 命令可以返回当前目录的完整路径，而不是目录名，如果要得到目录名，有下面 4 种方法：
+
+== basename ==
+使用 basename 是最简单的方法,链接 basename 和pwd，就可获得当前目录：
+{{{
+cd /usr/local/bin
+basename `pwd` 或者 basename $PWD
+bin
+}}}
+
+== 使用 ## 拆分变量 ==
+${var##pattern} 可以从 $var 变量中，去掉可以匹配 pattern 最大长度的字符串，所以，要获得目录名，可以：
+{{{
+d /var/log/squid
+echo ${PWD##*/}
+squid
+}}}
+$PWD 是保存目录完整路径的环境变量，pattern 就是 */，也就是去掉了前面所有的上级目录。
+
+== 使用 awk 和 rev ==
+把结果分步显示，你就知道原理了：
+{{{
+pwd
+/usr/share/cups/data
+pwd | rev 
+atad/supc/erahs/rsu/
+pwd | rev | awk –F \/ '{print $1}'
+atad
+pwd | rev | awk –F \/ '{print $1}' | rev
+data
+}}}
+-F 选项是指定分隔符，目录之间分隔符为 /。
+
+=== 使用 sed ===
+{{{
+cd /home/smith/music
+pwd | sed 's,^\(.*/\)\?\([^/]*\),\2,'
+music
+}}}
+第一个 pattern，^\(.*/\)?，匹配 / 符号前所有的东西，第二个 [^/]* ，匹配剩余部分不包含 / 的部分。
+{{{
+cd /usr/share/cups/data
+pwd | rev | awk –F \/ '{print $1}' | rev
+data
+}}}

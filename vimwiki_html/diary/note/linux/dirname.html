@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>dirname</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="Stylesheet" type="text/css" href="../../../css/style.css" />
+<script>var root_path = '../../../';</script> 
+</head>
+<body>
+<div id="all">
+<div id="header">
+	<ul id="top-nav">
+		<li>
+			<a href="../../../index.html">首页</a>
+		</li>
+		<li>
+			<a href="../../../note/index.html">经验总结</a>
+		</li>
+		<li>
+			<a href="../../../diary/diary.html">日记</a>
+		</li>
+	</ul>
+</div>
+<div id="main">
+<h1 id="toc_1">获得当前目录名称的 4 种方法</h1>
+
+<p>
+在写 shell 脚本的时候，有时我们需要得到当前目录的名称，pwd 命令可以返回当前目录的完整路径，而不是目录名，如果要得到目录名，有下面 4 种方法：
+</p>
+
+<h2 id="toc_1.1">basename</h2>
+<p>
+使用 basename 是最简单的方法,链接 basename 和pwd，就可获得当前目录：
+</p>
+<pre>
+cd /usr/local/bin
+basename `pwd` 或者 basename $PWD
+bin
+</pre>
+
+<h2 id="toc_1.2">使用 ## 拆分变量</h2>
+<p>
+${var##pattern} 可以从 $var 变量中，去掉可以匹配 pattern 最大长度的字符串，所以，要获得目录名，可以：
+</p>
+<pre>
+d /var/log/squid
+echo ${PWD##*/}
+squid
+</pre>
+<p>
+$PWD 是保存目录完整路径的环境变量，pattern 就是 */，也就是去掉了前面所有的上级目录。
+</p>
+
+<h2 id="toc_1.3">使用 awk 和 rev</h2>
+<p>
+把结果分步显示，你就知道原理了：
+</p>
+<pre>
+pwd
+/usr/share/cups/data
+pwd | rev 
+atad/supc/erahs/rsu/
+pwd | rev | awk –F \/ '{print $1}'
+atad
+pwd | rev | awk –F \/ '{print $1}' | rev
+data
+</pre>
+<p>
+-F 选项是指定分隔符，目录之间分隔符为 /。
+</p>
+
+<h3 id="toc_1.3.1">使用 sed</h3>
+<pre>
+cd /home/smith/music
+pwd | sed 's,^\(.*/\)\?\([^/]*\),\2,'
+music
+</pre>
+<p>
+第一个 pattern，<sup><small>\(.<strong>/\)?，匹配 / 符号前所有的东西，第二个 [</small></sup>/]</strong> ，匹配剩余部分不包含 / 的部分。
+</p>
+<pre>
+cd /usr/share/cups/data
+pwd | rev | awk –F \/ '{print $1}' | rev
+data
+</pre>
+</div>
+<div id="footer">
+    <p>&copy; 2011 君英 &nbsp;&nbsp; <a href="../../../SiteMap.html" title="站点地图">站点地图</a></p>
+</div>
+</div>
+<script src="../../../css/jquery.js" type="text/javascript"></script>
+<script src="../../../css/vimwiki.js" type="text/javascript"></script>
+</body>
+</html>

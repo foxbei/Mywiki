@@ -2,3 +2,5 @@
 
 * [[linux/rsync_web_backup|镜像(备份)网站的几种方法！]]
 
+* [[note/linux/dirname|获得当前目录名称的 4 种方法]]
+
