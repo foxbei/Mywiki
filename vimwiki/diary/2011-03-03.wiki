@@ -4,3 +4,13 @@
 
 * [[note/linux/dirname|获得当前目录名称的 4 种方法]]
 
+* Pappy's Kernel Seeds 
+Main: http://www.kernel-seeds.org 
+Failover: http://62.3.120.142/~pappy/  http://72.181.245.144
+Failover 2: http://kernel-seeds.bloodnoc.org/ 
+Post .configs using http://pastebin.com/
+
+镜像kernel-seeds网站:
+{{{
+wget -r -c -np -nH http://kernel-seeds.org/
+}}}
