@@ -1,0 +1,109 @@
+%toc
+= 镜像(备份)网站的方法 =
+== 有root权限 == 
+
+=== 方法1:  === 
+
+{{{
+rsync -vazu -e ssh ./* root@211.152.111.111:/home/www
+}}}
+
+注解：将当前目录下的所有文件通过ssh协议传送到远程服务器的/home/www目录中。(经过测试，这种方式最快!) 
+
+=== 方法2: === 
+
+{{{
+scp -p ./* root@211.152.111.111:/home/www
+}}}
+
+注解: 将当前目录下的所有文件通过scp工具传送到远程服务器的/home/www目录中。 
+
+== 有ftp权限 == 
+
+{{{
+wget -m -c -nH ftp://username:password@211.152.111.111/
+}}}
+
+注解：将远程服务器（必须要有ftp权限）上的文件抓到当前目录下。 
+
+== 只有浏览权限 == 
+
+{{{
+wget -r -c -np -nH http://www.abc.com
+}}}
+
+注解：将网站www.abc.com的所有内容抓下来，功能相当于win平台下的webzip。 
+
+= rsync 命令实例 =
+
+== 显示目录内容 ==
+
+=== 命令 ===
+{{{
+a) rsync <dst-dir>
+b) rsync -r <dst-dir>
+c) rsync jack@192.168.0.1::<dst-dir>
+d) rsync ssh_user@192.168.0.1:<dst-dir>
+}}}
+
+=== 命令说明 ===
+a) 显示<dst-dir>目录内容(第一层)
+b) 递归显示<dst-dir>目录内容
+c) 显示远程主机<dst-dir>目录内容
+   *注1：端口模式, 基于rsync用户的身份验证
+   *注2：rsync server上的目录必须具有xx7的权限.
+d) 查看远程主机<dst-dir>目录内容
+   *注1：remote shell模式, 通过ssh连接的基于系统本地用户的身份验证
+   *注2：这里只使用了一个冒号(:)，同时用户名是远程主机的ssh用户，密码也是ssh用户对应的密码。
+   *注3：使用"<dst-dir>"，则列出<dst-dir>文件夹本身的信息。若要列出<dst-dir>文件夹内容，应使用"<dst-dir>/"。
+   
+=== 参数说明 ===
+-r          对目录进行递归操作
+
+   
+== 本地目录之间同步 ==
+=== 命令 ===
+{{{
+a) rsync -av  --progress <src-dir>/ <dst-dir>             *** 注意(/) ***
+b) rsync -av  --progress <src-dir>  <dst-dir>
+c) rsync -avu --progress --delete <src-dir>/  <dst-dir>
+d) rsync -av  --progress --temp-dir=/tmp <src-dir>/ <dst-dir>
+}}}
+=== 命令说明 ===
+a) 同步src-dir目录下所有文件到dst-dir目录下
+b) 同步src-dir目录下所有文件到dst-dir/src-dir目录下
+c) 对src-dir目录内容向dst-dir目录下进行差异更新，有增加/更新则添加替换，有减少则对其删减
+d) 比a)多了--temp-dir=/tmp，即指定/tmp为临时交换区，这样可以避免因目标目录空间不够引起的无法同步文件的错误。
+
+=== 参数说明 ===
+-a          相当于 -rlptgoD 的集合
+-u          等同于 --update，在目标文件比源文件新的情况下不更新
+-v          显示同步的文件
+--progress  显示文件同步时的百分比进度、传输速率
+--delete    删除目标目录中多于源目录的文件
+
+
+== 异地主机之间同步 ==
+
+=== 命令 ===
+{{{
+a) rsync -avz  --progress <src-dir> jack@192.168.0.1::<dst-dir>/
+b) rsync -avz  --progress <src-dir> jack@192.168.0.1::<dst-dir>/ --password-file=/home/jack/rsync.jack
+c) rsync -avuz  --progress --delete <src-dir> jack@192.168.0.1::<dst-dir>/ --password-file=/home/jack/rsync.jack
+d) rsync -avz  --progress jack@192.168.0.1::<dst-dir>/<src-dir> <dst-dir>
+}}}
+=== 命令说明 ===
+a) 同步本地<src-dir>目录的内容到远程主机192.168.0.1的<dst-dir>目录下，jack是rsync数据库用户(参见3. /etc/rsync.secrets)
+b) 通过自动读取用户密码而实现非交互登录文件同步
+c) 较b)多了-u和--delete
+d) 同步远程主机内容到本地目录
+
+
+=== 参数说明 ===
+-z                等同于 --compress，对传输的文件压缩，这对节约网络带宽或在网络资源紧张的情况下非常有用
+--password-file   引用192.168.0.1上rsync用户jack口令的本地文件，创建方法如下
+{{{
+shell> echo "jackpwd" >> /home/jack/rsync.jack
+shell> chown jack:wheel /home/jack/rsync.jack
+shell> chmod 600 /home/jack/rsync.jack
+}}}

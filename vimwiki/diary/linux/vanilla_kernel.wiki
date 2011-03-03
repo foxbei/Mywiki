@@ -1,0 +1,2 @@
+= vanilla kernel =
+从kernel.org下载下来的kernel叫做vanilla kernel(原版核心)，大部分Linux版本都会有自己的kernel,社区会给他打很多补丁。
