@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>2011-03-04</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="Stylesheet" type="text/css" href="../css/style.css" />
+<script>var root_path = '../';</script> 
+</head>
+<body>
+<div id="all">
+<div id="header">
+	<ul id="top-nav">
+		<li>
+			<a href="../index.html">首页</a>
+		</li>
+		<li>
+			<a href="../note/index.html">经验总结</a>
+		</li>
+		<li>
+			<a href="../diary/diary.html">日记</a>
+		</li>
+	</ul>
+</div>
+<div id="main">
+<h1 id="toc_1">php.vim</h1>
+<p>
+<a href="http://www.vim.org/scripts/script.php?script_id=2874">http://www.vim.org/scripts/script.php?script_id=2874</a>
+安装：
+最新版本：php53.tar.gz	1.1	2010-04-02	7.0 <a href="http://www.vim.org/scripts/download_script.php?src_id=12772">down</a>
+</p>
+
+<pre>
+code begin：
+    call extend(ldest, s:get_html_footer(subdir)) " 添加subdir参数
+
+
+function! s:get_html_footer(subdir) "{{{
+  let lines=[]
+
+  if VimwikiGet('html_footer') != "" &amp;&amp; !s:warn_html_footer
+    try
+      let lines = readfile(expand(VimwikiGet('html_footer')))
+      " 添加以下两行
+      call map(lines, 'substitute(v:val, "%root_path%", "'
+            \ s:root_path(a:subdir) .'", "g")')
+      return lines
+......
+code end
+</pre>
+
+
+<p>
+apt.weiphone.com/cydia
+app.weiphone.com/cydia
+</p>
+
+
+<h1 id="toc_2">Git .gitignore 设定与注意事项</h1>
+<h2 id="toc_2.1">环境</h2>
+<p>
+Git 所管理的专案名称、位置: /home/user/doc
+下述范例是以 Zim 为主, Zim是一套桌面的Wiki编辑器,里面写的内容都会存成txt档, .zim的目录下会存"*.cache"和"zim本身自己的设定值" .
+</p>
+
+<p>
+Zim 在刚开始建立完成后, 就使用下述步骤:
+</p>
+<pre>
+cd /home/user/doc
+git init
+git commit -a
+git push 
+</pre>
+<p>
+#一开始没有设定.gitignore, 所以会将.zim/* 都commit 进去
+于每次开启Zim 后, 都会出现
+</p>
+
+<table>
+<tr>
+<td>modified: .zim/history.cache <br > modified: .zim/index.cache</td>
+</tr>
+</table>
+
+<p>
+造成git commit -a 的麻烦(因为多台电脑要同步时, index.cache / history.cache 都会出现需要merge 的状况), 所以想设定.gitignore 来把它拿掉. (方便git commit -a)
+</p>
+
+<h2 id="toc_2.2">设定.gitignore 位置、方法</h2>
+<p>
+设定Git ignore 的方式都一样, 有下面几个地方可以设定, 依自己喜好/ 需求来设定即可.(设定位置)
+</p>
+
+<p>
+vim ~/.gitignore #对所有Git的专案生效(自己的home目录下)
+vim doc/.gitignore # doc是专案名称,用这个的好处是,将.gitignore commit进去,此.gitignore可以随着专案到处走. (Git管理的Project目录下)
+vim doc/.git/info/exclude #只有单独于此处.git生效(Project的.git/info/exclude档案)
+这几个地方都可以设定,可以使用*等符号.详可见: gitignore(5) Manual Page
+于.zim 的状况, 可以设定下述: (设定方法)
+</p>
+
+<p>
+所有. 开头的目录/ 档案都不commit
+</p>
+<pre>
+.*
+</pre>
+<p>
+.zim 目录内的所有*.cache 都不commit
+</p>
+<pre>
+.zim/*.cache
+</pre>
+<p>
+只有.zim/history.cache, .zim/index.cache 不commit
+<table>
+<tr>
+<td>.zim/history.cache <br >.zim/index.cache</td>
+</tr>
+</table>
+.gitignore 无法生效的问题修复
+在测试状况都是正常, 但是在Zim 实际使用就有问题, 每次都出现modified 的解法.
+</p>
+
+<p>
+解法
+因为第一次commit 已经将.zim/*.cache commit 进去了, 所以每次它都会去检查, 造成都出现modified 的状况.
+</p>
+<pre>
+git rm -f .zim/history.cache
+git rm -f .zim/index.cache
+git commit #
+</pre>
+<p>
+即可,再将.gitignore 设定好, 就可以避免掉这些状况啰~ :)
+<h2 id="toc_2.3">范例-我的Zim 设定方式</h2>
+</p>
+<pre>
+cd /home/user/doc
+vim .gitignore
+    .zim/*.cache
+git add .gitignore
+git commit
+git push
+</pre>
+</div>
+<div id="footer">
+    <p>&copy; 2011 君英 &nbsp;&nbsp; <a href="../SiteMap.html" title="站点地图">站点地图</a></p>
+</div>
+</div>
+<script src="../css/jquery.js" type="text/javascript"></script>
+<script src="../css/vimwiki.js" type="text/javascript"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+= php.vim =
+http://www.vim.org/scripts/script.php?script_id=2874
+安装：
+最新版本：php53.tar.gz	1.1	2010-04-02	7.0 [http://www.vim.org/scripts/download_script.php?src_id=12772 down]
+
+{{{
+code begin：
+    call extend(ldest, s:get_html_footer(subdir)) " 添加subdir参数
+
+
+function! s:get_html_footer(subdir) "{{{
+  let lines=[]
+
+  if VimwikiGet('html_footer') != "" && !s:warn_html_footer
+    try
+      let lines = readfile(expand(VimwikiGet('html_footer')))
+      " 添加以下两行
+      call map(lines, 'substitute(v:val, "%root_path%", "'
+            \ s:root_path(a:subdir) .'", "g")')
+      return lines
+......
+code end
+}}}
+
+
+apt.weiphone.com/cydia
+app.weiphone.com/cydia
+
+
+= Git .gitignore 设定与注意事项 =
+== 环境 ==
+Git 所管理的专案名称、位置: /home/user/doc
+下述范例是以 Zim 为主, Zim是一套桌面的Wiki编辑器,里面写的内容都会存成txt档, .zim的目录下会存"*.cache"和"zim本身自己的设定值" .
+
+Zim 在刚开始建立完成后, 就使用下述步骤:
+{{{
+cd /home/user/doc
+git init
+git commit -a
+git push 
+}}}
+#一开始没有设定.gitignore, 所以会将.zim/* 都commit 进去
+于每次开启Zim 后, 都会出现
+
+| modified: .zim/history.cache <br > modified: .zim/index.cache |
+
+造成git commit -a 的麻烦(因为多台电脑要同步时, index.cache / history.cache 都会出现需要merge 的状况), 所以想设定.gitignore 来把它拿掉. (方便git commit -a)
+
+== 设定.gitignore 位置、方法 ==
+设定Git ignore 的方式都一样, 有下面几个地方可以设定, 依自己喜好/ 需求来设定即可.(设定位置)
+
+vim ~/.gitignore #对所有Git的专案生效(自己的home目录下)
+vim doc/.gitignore # doc是专案名称,用这个的好处是,将.gitignore commit进去,此.gitignore可以随着专案到处走. (Git管理的Project目录下)
+vim doc/.git/info/exclude #只有单独于此处.git生效(Project的.git/info/exclude档案)
+这几个地方都可以设定,可以使用*等符号.详可见: gitignore(5) Manual Page
+于.zim 的状况, 可以设定下述: (设定方法)
+
+所有. 开头的目录/ 档案都不commit
+{{{
+.*
+}}}
+.zim 目录内的所有*.cache 都不commit
+{{{
+.zim/*.cache
+}}}
+只有.zim/history.cache, .zim/index.cache 不commit
+| .zim/history.cache <br >.zim/index.cache |
+.gitignore 无法生效的问题修复
+在测试状况都是正常, 但是在Zim 实际使用就有问题, 每次都出现modified 的解法.
+
+解法
+因为第一次commit 已经将.zim/*.cache commit 进去了, 所以每次它都会去检查, 造成都出现modified 的状况.
+{{{
+git rm -f .zim/history.cache
+git rm -f .zim/index.cache
+git commit #
+}}}
+即可,再将.gitignore 设定好, 就可以避免掉这些状况啰~ :)
+== 范例-我的Zim 设定方式 ==
+{{{
+cd /home/user/doc
+vim .gitignore
+    .zim/*.cache
+git add .gitignore
+git commit
+git push
+}}}
