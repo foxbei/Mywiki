@@ -1,0 +1,103 @@
+Git repository over HTTP WebDAV with nginx
+
+The goal is to create Git push repository available over HTTP protocol. I need to have read-write access, with read-only access for the rest of the world. Since I do not use any webservers other than nginx anymore, I configured it with nginx. It turned out to be pretty simple in theory, but not fully functional afterall.
+
+First you need to build/install nginx with WebDAV module:
+
+# emerge -av nginx
+
+These are the packages that would be merged, in order:
+
+Calculating dependencies... done!
+
+[ebuild   R   ] www-servers/nginx-0.6.29  USE="debug fastcgi imap pcre perl ssl status webdav zlib -addition -flv -sub" 0 kB
+After you verify that your nginx is running, you need to prepare Git server repository.
+
+$ cd /var/www/my.site.dir/htdocs
+$ mkdir my-new-repo.git
+Initialize a bare repository.
+
+$ cd my-new-repo.git
+$ git --bare init
+Change ownership of files to nginx user be able to write them.
+
+$ chown -R nginx:nginx .
+Then you need to configure a location on your web host with WebDAV access.
+
+# vim /etc/nginx/vhosts.d/my.site.conf
+server {
+listen          127.0.0.1;
+server_name     my.site.hostname;
+
+root            /var/www/my.site.dir/htdocs;
+
+client_body_temp_path   /var/www/my.site.dir/client_temp;
+create_full_put_path    on;
+dav_access              user:rw  group:r  all:r;
+
+location /my-new-repo.git/ {
+dav_methods  PUT DELETE MKCOL COPY MOVE; #PROPFIND
+}
+
+}
+Give nginx a way to write to client_temp path.
+
+chown nginx:nginx /var/www/my.site.dir/client_temp
+Reload nginx.
+
+/etc/init.d/nginx reload
+Verify that you can read http://my.site.hostname/my-new-repo.git/description
+
+This is basically all. You have a fully working WebDAV repository. But we do not want all the world to be able to write to the repo, so we need to put some authorization to it. Let’s use simple user/pass authentication.
+
+Create user passwords file.
+
+# htpasswd -c /var/www/my.site.dir/passwd.git tomasz.sterna
+New password:
+Re-type new password:
+Adding password for user tomasz.sterna
+Add authentication to nginx location.
+
+        location /my-new-repo.git/ {
+dav_methods  PUT DELETE MKCOL COPY MOVE; #PROPFIND
+limit_except  GET {
+auth_basic      "Git";
+auth_basic_user_file    /var/www/my.site.dir/passwd.git;
+}
+}
+and reload nginx.
+
+Then you need to setup your client Git. This is the same as the usuall case, but I will include it here for completeness.
+
+Make sure that you have HTTP support, i.e. your git was built with curl. The easiest way to check is to look for the executable ‘git-http-push’.
+
+Then, add the following to your $HOME/.netrc (you can do without, but will be asked to input your password a lot of times):
+
+    machine servername
+login username
+password password
+…and set permissions:
+
+chmod 600 ~/.netrc
+If you want to access the web-server by its IP, you have to type that in, instead of the server name.
+
+To check whether all is OK, do:
+
+curl --netrc --location -v http://username@servername/my-new-repo.git/description
+…this should give a description of /var/www/my.site.dir/htdocs/my-new-repo.git .
+
+Now, add the remote in your existing repository which contains the project you want to export:
+
+$ git-config remote.upload.url http://username@servername/my-new-repo.git/
+It is important to put the last ‘/’; Without it, the server will send a redirect which git-http-push does not (yet) understand, and git-http-push will repeat the request infinitely.
+
+Make the initial push.
+
+From your client repository, do
+
+$ git push upload master
+This pushes branch ‘master’ (which is assumed to be the branch you want to export) to repository called ‘upload’, which we previously defined with git-config.
+
+And currently this is a showstopper. nginx http_dav_module does not support PROPFIND method yet, and git-http-push requires it. I am working on extending http_dav_module to support the missing methods but it’s complicated and I do not have much time for this. For now see comments for possible workarounds.
+
+

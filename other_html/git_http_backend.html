@@ -1,0 +1,188 @@
+<html>
+<head>
+<link rel="Stylesheet" type="text/css" href="style.css" />
+<title>git_http_backend</title>
+<meta http-equiv="Content-Type" content="text/html; charset=" />
+</head>
+<body>
+<h1 id="toc_1">Git 安装与配置</h1>
+<p>
+Git 版本管理工具出自 Linus 之手，最早是给 Linux 内核项目使用的。由于其快速，灵活和强大的分支功能等特点，目前已经被广泛使用，并取代了 svn 的相当一部分用户份额。
+</p>
+
+<p>
+安装软件
+</p>
+
+<ol>
+<li>
+USE="-perl" emerge git
+</li>
+</ol>
+<p>
+建立服务器仓库
+</p>
+
+<p>
+应先在服务器端创建空白 git 仓库：
+</p>
+
+<ol>
+<li>
+mkdir repos.git
+</li>
+<li>
+cd repos.git
+</li>
+<li>
+git --bare init
+</li>
+<li>
+git update-server-info
+</li>
+</ol>
+<p>
+服务器端基本配置
+</p>
+
+<p>
+配置 email 通知脚本 从 这里下载 email 通知脚本，放到合适的目录：
+</p>
+<ol>
+<li>
+cp post-receive-email repos.git/hooks/post-receive
+</li>
+</ol>
+<p>
+默认的通知脚本在邮件标题中没有自定义的收件人名称，可以修改成如下的样子：
+</p>
+
+<p>
+691c691
+&lt; 		/usr/sbin/sendmail -t -f "$envelopesender"
+---
+&gt; 		/usr/sbin/sendmail -t -F "$sendername" -f "$envelopesender"
+722a723
+&gt; sendername=$(git config hooks.sendername)
+然后配置 hooks.sendername 这个参数就可以指定收件人名称了。
+</p>
+
+<p>
+hooks 相关参数设置
+</p>
+<ol>
+<li>
+cd repos.git
+</li>
+<li>
+git config hooks.mailinglist = &lt;mail-list&gt;         # 多个邮件地址以“,”分隔
+</li>
+<li>
+git config hooks.emailprefix = &lt;title-prefix&gt;      # 通知邮件标题的前缀
+</li>
+<li>
+git config hooks.envelopesender = &lt;sender-address&gt; # 发送者的邮件地址
+</li>
+<li>
+git config hooks.sendername = &lt;sender-name&gt;        # 发送者姓名
+</li>
+</ol>
+<p>
+git 仓库描述 修改 repos.git/description 文件，填写代码仓库的描述。
+git 仓库目录权限 由于这里采用 http(s) 方式访问 git 仓库，所以服务端仓库目录的权限应设置为 www 服务器运行用户的权限：
+</p>
+<ol>
+<li>
+chown -R &lt;www-user&gt;.&lt;www-user&gt; repos.git
+</li>
+</ol>
+<p>
+配置 apache 模块
+</p>
+
+<p>
+在 etc/apache2/modules.d 目录下添加 git 配置文件（命名为 &lt;number&gt;_git_http.conf），写成如下形式：
+</p>
+<pre>
+SetEnv GIT_PROJECT_ROOT &lt;path-to-git-root&gt;
+SetEnv GIT_HTTP_EXPORT_ALL
+
+ScriptAliasMatch \
+        "(?x)^/(.*/(HEAD | \
+                    info/refs | \
+                    objects/(info/[^/]+ | \
+                             [0-9a-f]{2}/[0-9a-f]{38} | \
+                             pack/pack-[0-9a-f]{40}\.(pack|idx)) | \
+                    git-(upload|receive)-pack))$" \
+        /usr/libexec/git-core/git-http-backend/$1
+
+&lt;Directory &lt;path-to-git-root&gt;&gt;
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+&lt;/Directory&gt;
+
+&lt;Directory /usr/libexec/git-core&gt;
+&lt;Files git-http-backend&gt;
+        Order allow,deny
+        Allow from all
+&lt;/Files&gt;
+&lt;/Directory&gt;
+
+Alias /&lt;repository-name&gt;.git &lt;path-to-git-repository&gt;
+&lt;Location /&lt;repository&gt;.git&gt;
+        AuthType &lt;auth-type&gt;
+        AuthName "&lt;auth-name&gt;"
+        AuthUserFile &lt;path-to-auth-file&gt;
+        Require valid-user
+&lt;/Location&gt;
+</pre>
+<p>
+这里使用 git 自带的 git-http-backend 程序作为 http 的后端，该后端效率比普通的 http 更高，而且支持 hooks。不建议使用 apache 的 dav 模块来配置 git 的 http 后端。
+</p>
+
+<p>
+常见问题
+</p>
+
+<p>
+git pull 时出现 ssl 证书失败信息
+配置 git 全局参数：
+</p>
+
+<p>
+$ git config --global http.sslVerify false
+关闭 ssl 验证。
+</p>
+
+<p>
+git push 时出现意外挂起和乱码信息
+表示客户端向服务器推送的数据量太大了（默认 1M 字节）。首先检查是否有多余的文件提交，如果无误可以临时修改本仓库的参数：
+</p>
+
+<p>
+$ git config http.postBuffer &lt;max-size-in-byte&gt;
+将推送的最大数据容量修改为期望的值。
+</p>
+
+<p>
+git log 中经常看到自动产生的合并信息
+这表示多人向服务器推送数据时，本地提交的内容在时间上有交叉，这类自动产生的信息对开发者一般没有价值。为避免这类信息的产生，建议在推送数据时使用如下流程：
+</p>
+<pre>
+$ git fetch origin         # 从服务器获取最新数据
+$ git rebase origin/master # 将本地的最新提交以远程服务器 master 分支为基准，归并至它当前的提交信息之后，生成线性的提交历史
+$ git push origin master   # 将本地数据推送到服务器上
+</pre>
+<p>
+参考资料
+</p>
+
+<p>
+ <a href="http://progit.org/book/zh/">http://progit.org/book/zh/</a>
+ <a href="http://www.kernel.org/pub/software/scm/git/docs/howto/setup-git-server-over-http.txt">http://www.kernel.org/pub/software/scm/git/docs/howto/setup-git-server-over-http.txt</a>
+ <a href="http://www.kernel.org/pub/software/scm/git/docs/git-http-backend.html">http://www.kernel.org/pub/software/scm/git/docs/git-http-backend.html</a>
+</p>
+
+</body>
+</html>

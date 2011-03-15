@@ -1,0 +1,22 @@
+ * 
+ * # cd /var/lib/redmine
+ * # cp config/database.yml.example config/database.yml
+ * # ${EDITOR} config/database.yml
+ * # emerge --config "=www-apps/redmine-1.1.1"
+
+
+
+
+sudo -u nginx mkdir /var/www/joomla16
+cd /var/www/joomla16
+sudo -u nginx git init
+sudo -u nginx git add .
+sudo -u nginx git commit -m ""
+
+sudo -u git mkdir /home/git/repositories/joomla16.git
+cd /home/git/repositories/joomla16.git
+sudo -H -u git git init --bare
+
+git init --bare
+git remote add vm
+

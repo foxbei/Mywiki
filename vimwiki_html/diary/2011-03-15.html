@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>2011-03-15</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="Stylesheet" type="text/css" href="../css/style.css" />
+<script>var root_path = '../';</script> 
+</head>
+<body>
+<div id="all">
+<div id="header">
+	<ul id="top-nav">
+		<li>
+			<a href="../index.html">首页</a>
+		</li>
+		<li>
+			<a href="../note/index.html">经验总结</a>
+		</li>
+		<li>
+			<a href="../diary/diary.html">日记</a>
+		</li>
+	</ul>
+</div>
+<div id="main">
+<p>
+gentoo上搭建git服务器
+</p>
+
+<p>
+1、安装
+emerge -av gitosis-gentoo
+</p>
+
+<p>
+2、在管理客户端生成SSH公匙
+ ssh-keygen
+ ssh-agent
+ ssh-copy-id
+</p>
+
+<p>
+3、编辑/etc/ssh/sshd_config
+</p>
+
+<p>
+4、创建git用户
+ useradd --system --shell /bin/sh --create-home --comment 'This is a VCS.' git
+ useradd -r -s /bin/sh -m -c 'This is a VCS.' git
+删除git用户
+ userdel -r git 
+</p>
+<ol>
+<li>
+-r  remove home directory and mail spool
+</li>
+</ol>
+
+<h2 id="toc_0.1">Git smart HTTP transport on nginx</h2>
+<p>
+<a href="http://www.toofishes.net/blog/git-smart-http-transport-nginx/">http://www.toofishes.net/blog/git-smart-http-transport-nginx/</a>
+</p>
+<pre>
+http {
+    ...
+    server {
+        listen       80;
+        server_name  git.mydomain.com;
+
+        location ~ /git(/.*) {
+            # fcgiwrap is set up to listen on this host:port
+            fastcgi_pass  localhost:9001;
+            include       fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME     /usr/lib/git-core/git-http-backend;
+            # export all repositories under GIT_PROJECT_ROOT
+            fastcgi_param GIT_HTTP_EXPORT_ALL "";
+            fastcgi_param GIT_PROJECT_ROOT    /srv/git;
+            fastcgi_param PATH_INFO           $1;
+        }
+    }
+}
+</pre>
+
+<h2 id="toc_0.2">使用 Git Hooks 实现自动项目部署</h2>
+<p>
+<a href="http://icyleaf.com/2010/09/08/apps-auto-deploy-with-git/">http://icyleaf.com/2010/09/08/apps-auto-deploy-with-git/</a>
+</p>
+
+<h2 id="toc_0.3">使用Git Hooks 更新网站</h2>
+<p>
+<a href="http://www.meucarnaval.com/update-the-website-using-git-hooks/">http://www.meucarnaval.com/update-the-website-using-git-hooks/</a>
+</p>
+
+<p>
+Git] 利用 post-receive hook 自動發 Email 給團隊成員
+<a href="http://josephjiang.com/entry.php?id=346">http://josephjiang.com/entry.php?id=346</a>
+</p>
+</div>
+<div id="footer">
+    <p>&copy; 2011 君英 &nbsp;&nbsp; <a href="../SiteMap.html" title="站点地图">站点地图</a></p>
+</div>
+</div>
+<script src="../css/jquery.js" type="text/javascript"></script>
+<script src="../css/vimwiki.js" type="text/javascript"></script>
+</body>
+</html>

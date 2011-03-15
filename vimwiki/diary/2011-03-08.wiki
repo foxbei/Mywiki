@@ -1,0 +1,8 @@
+== 使用gitosis来配置管理git服务器端 ==
+http://blog.prosight.me/index.php/tag/gentoo
+
+== Using Git to manage a web site ==
+http://toroid.org/ams/git-website-howto
+
+== Gitolite 构建 Git 服务器端 ==
+http://www.ossxp.com/doc/git/gitolite.html

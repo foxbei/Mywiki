@@ -1,0 +1,6 @@
+= jpg转换PDF =
+{{{
+convert *.jpg pdfname.pdf
+}}}
+
+http://www.filesonic.com/file/162495651/com_zoo_2.4_beta_j16.zip

@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>git via HTTP (startup automation 3)</title>
+   <meta name="author" content="Lenz Gschwendtner" />
+
+
+
+
+</head>
+<body>
+    <div id='wrapper'>
+      <div id='content'>
+        <div id="post">
+<h1 id='startup_automation__part_3'>Startup automation - Part 3</h1>
+
+<h2 id='git_via_http_with_nginx'>git via HTTP with nginx</h2>
+
+<p>Just in case you don&#8217;t know (very unlikely) or never played with nginx before. This is <em>the</em> web server and frontend HTTP loadbalancer all your HTTP based setups should have anyway. There is documentation in English on the nginx wiki (<a href='http://wiki.nginx.org'>http://wiki.nginx.org</a>) and if you get stuck there is a lot of stuff just on google. The rails community love nginx and they tend to document well - a thanks at this point to those guys.</p>
+
+<p>The setup is really straight forward but has some minor cave eats that can cause you grief and debugging hours I want to save you.</p>
+
+<p>First of all you need nginx installed on your system - obviously. I assume that your webroot is under <code>/var/www</code>. We need a directory called <code>git</code> under it and need to link the repositories in that you want to share.</p>
+<div class='highlight'><pre><code class='sh'><span class='nv'>$ </span>mkdir /var/www/git
+<span class='nv'>$ </span><span class='nb'>cd</span> /var/www/git
+<span class='nv'>$ </span>ln -s /srv/gitosis/repositories/<span class='o'>[</span>repository<span class='o'>]</span>.git <span class='o'>[</span>repository<span class='o'>]</span>
+</code></pre>
+</div>
+<p>This includes some assumptions. I take that you have more repositories in your gitosis setup than public repositories you want to share or make available via http. If this is not the case you can simply point nginx at your gitosis repository path and add a simple rewrite rule that cuts off the trailing <code>.git</code> of the repository path.</p>
+
+<p>In nginx we need some configuration that acually serves those repositories now. That is initially really straight forward:</p>
+<div class='highlight'><pre><code class='sh'>server <span class='o'>{</span>
+    listen   80;
+    server_name  git.<span class='o'>[</span>your.domain.tld<span class='o'>]</span>;
+    access_log  /var/log/nginx/git.access.log;
+    location / <span class='o'>{</span>
+        root   /var/www/git/;
+    <span class='o'>}</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>This is the first very basic configuration for nginx. All we have to do now is enabling a simple hook in our git repository we want to serve and we are done.</p>
+
+<p>To do that we need to go to our gitosis repository (you can simply <code>cd</code> to the linked directory now) and edit the <code>hooks/post-update</code> hook. Add the following line (or uncomment it) and make sure the file has the executable bit set (<code>chmod +x hooks/post-update</code>).</p>
+<div class='highlight'><pre><code class='sh'><span class='nb'>exec </span>git-update-server-info
+</code></pre>
+</div>
+<p>This post update hook needs to be run once now. You can either push something to the repository to trigger the hook or <code>su</code> to the git user and simply run the hook. The <code>su</code> is important to not screw up the permissions.</p>
+
+<p>Speaking of permissions - we need to make the repository readable by the nginx user. The easy way is to add <code>www-data</code> to the git group that owns the git repository. The git group should only have read access to the git repositories anyway so it does not open up a too big hole in your security.</p>
+
+<p>Once all that is done you can test your setup with the following command:</p>
+<div class='highlight'><pre><code class='sh'>git ls-remote
+http://git.<span class='o'>[</span>your.domain.tld<span class='o'>]</span>/<span class='o'>[</span>repository<span class='o'>]</span> master
+</code></pre>
+</div>
+<p>This should come back with something like this:</p>
+
+<p><code>171bb2f12ceb908fd4802857a2f577a1739f8d1f        refs/heads/master</code></p>
+
+<h2 id='securing_the_setup_with_basic_auth_and_https'>Securing the setup with &#8220;basic auth&#8221; and HTTPS</h2>
+
+<p>Now comes the fun part. After we have this setup up and running we can start to use it for rollout systems like capistrano and have read only repositories that we serve via HTTPS and basic auth without the need of deploying SSH keys all over for access to gitosis.</p>
+
+<p>All we have to do now is change our nginx configuration slightly. We need to enable HTTPS and we can even have different auth files for different projects. This might be interesting if you run several projects on your gitosis host with different committers.</p>
+<div class='highlight'><pre><code class='sh'>server <span class='o'>{</span>
+    listen   443;
+    server_name  git.<span class='o'>[</span>your.domain.tld<span class='o'>]</span>;
+    access_log  /var/log/nginx/git.access.log;
+
+    ssl  on;
+    ssl_certificate  certs/git.pem;
+    ssl_certificate_key  certs/git.key;
+
+    ssl_session_timeout  5m;
+
+    ssl_protocols  SSLv2 SSLv3 TLSv1;
+    ssl_ciphers  ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP;
+    ssl_prefer_server_ciphers   on;
+
+    location / <span class='o'>{</span>
+        root   /var/www/git/;
+        auth_basic            <span class='s2'>&quot;Restricted&quot;</span>;
+        auth_basic_user_file  conf.d/htpasswd.general;
+    <span class='o'>}</span>
+
+    location /<span class='o'>[</span>repository 1<span class='o'>]</span> <span class='o'>{</span>
+        root   /var/www/git/;
+        autoindex  on;
+        auth_basic            <span class='s2'>&quot;Restricted&quot;</span>;
+        auth_basic_user_file  conf.d/htpasswd.<span class='o'>[</span>group 1<span class='o'>]</span>;
+    <span class='o'>}</span>
+    location /<span class='o'>[</span>repository 2<span class='o'>]</span> <span class='o'>{</span>
+        root   /var/www/git/;
+        autoindex  on;
+        auth_basic            <span class='s2'>&quot;Restricted&quot;</span>;
+        auth_basic_user_file  conf.d/htpasswd.<span class='o'>[</span>group 2<span class='o'>]</span>;
+    <span class='o'>}</span>
+<span class='o'>}</span>
+</code></pre>
+</div>
+<p>Reload your nginx and you have your repositories served up under HTTPS and only need to create the htaccess files now. This is simply done with the <code>htaccess</code> program that is part of apache (or the apache utils with come as a separate package). Also note that your <code>root</code> directory is always the base git webroot.</p>
+
+<h2 id='some_oddities'>some oddities</h2>
+
+<p>While testing I used self signed certificates and as the host is only used in non public ways I will stay with them. This caused some googling however as git came up with the following error:</p>
+
+<p><code>fatal: https://[user:pass@git.host]/[repository]/info/refs download error - SSL certificate problem, verify that the CA cert is OK. </code></p>
+
+<p>This is due to the self signed cert and has to be overridden with a environment variable. A simple</p>
+<div class='highlight'><pre><code class='sh'><span class='nv'>$ </span><span class='nb'>export </span><span class='nv'>GIT_SSL_NO_VERIFY</span><span class='o'>=</span><span class='nb'>true</span>
+</code></pre>
+</div>
+<p>did the trick. If you have a rollout user you want this parameter to be in his <code>.profile</code> or your shell specific equivalent (eg <code>.bashrc</code>).</p>
+</div>
+
+
+  </body>
+</html>
